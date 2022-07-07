@@ -11,9 +11,9 @@ import com.wtw.test.springbootwebapplication.model.Employee;
 
 @Component
 public class EmployeeDAO {
-	public static Connection con = getDBConnection();
+	public Connection con = getDBConnection();
 	
-	public static Employee updateEmployee(int id, Employee updatedEmployee) throws SQLException {
+	public Employee updateEmployee(int id, Employee updatedEmployee) throws SQLException {
 		
 		String query1 = "UPDATE employee SET name = ?, address = ?, role = ?, salary = ? WHERE id = ?";
 		try { 
@@ -23,32 +23,45 @@ public class EmployeeDAO {
 				ps.setString(3, updatedEmployee.getRole());
 				ps.setFloat(4, updatedEmployee.getSalary());
 				ps.setInt(5, id);
-				ps.executeUpdate();
+				int rowUpdated = ps.executeUpdate();
+				
+				System.out.println(rowUpdated);
+				
+				if (rowUpdated <= 0)
+					throw new SQLException ("No entry found for the given id.");
 				ps.close();
 				
 				System.out.println("Record updated successfully.");
 		}
 		catch (SQLException e) {
-			e.printStackTrace();
+			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
 		}
+		updatedEmployee.setId(id);
+		
 		return updatedEmployee;
 	}
 	
-	public static void deleteEmployee(int id) throws SQLException {
+	public void deleteEmployee(int id) throws SQLException {
 		String query2 = "DELETE FROM employee WHERE id = ?";
 		try {
 			PreparedStatement ps = con.prepareStatement(query2);
 			ps.setInt(1, id);
-			ps.executeUpdate();
+			int rowUpdated = ps.executeUpdate();
+			
+			System.out.println(rowUpdated);
+			
+			if (rowUpdated <= 0)
+				throw new SQLException ("No entry found for the given id.");
+			ps.close();
 			
 			System.out.println("Record deleted successfully from database.");
 		}
 		catch (SQLException e) {
-			e.printStackTrace();
+			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
 		}
 	}
 
-	private static Connection getDBConnection() 
+	private Connection getDBConnection() 
 	{
 		Connection con = null;
 		

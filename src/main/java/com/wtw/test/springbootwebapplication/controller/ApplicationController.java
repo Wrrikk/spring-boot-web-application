@@ -1,6 +1,7 @@
 package com.wtw.test.springbootwebapplication.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,19 +20,25 @@ public class ApplicationController {
 	
 	@PutMapping("/updateEmployee/{id}")
 	public ResponseEntity<Employee> updateDetails(@PathVariable(value = "id") Integer id, @RequestBody Employee updatedEmployee) throws Exception {
-		
-		Employee employee = EmployeeService.updateEmployeeDetails(id, updatedEmployee);
-	
-		if(updatedEmployee == null)throw new Exception("No Employee found for id :" + id);
-		return ResponseEntity.ok(employee);
+		try {
+			Employee employee = employeeService.updateEmployeeDetails(id, updatedEmployee);
+			
+			return ResponseEntity.ok(employee);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 	@DeleteMapping("/deleteEmployee/{id}")
 	public ResponseEntity<Employee> deleteEmployeeByID(@PathVariable(value = "id") Integer id) throws Exception {
-		
-		EmployeeService.deleteEmployeeEntry(id);
-		
-		return ResponseEntity.noContent().build();
+		try {
+			employeeService.deleteEmployeeEntry(id);
+			
+			return ResponseEntity.noContent().build();
+		}
+		catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
-	
 }
